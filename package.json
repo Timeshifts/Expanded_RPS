@@ -1,0 +1,22 @@
+{
+  "name": "expaneded_rps",
+  "version": "0.0.1",
+  "description": "더 많은 손패로 즐기는 가위바위보",
+  "main": "server.js",
+  "author": "Timeshift",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "html": "^1.0.0",
+    "morgan": "^1.10.0",
+    "nunjucks": "^3.2.4",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
