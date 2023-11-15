@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>확장 가위바위보 게임!</h1>
+<div id="message">매칭 대기 중...<br>
+매칭이 끝나면 자동으로 경기가 시작됩니다.</div>
+{% endblock %}
+
+{% block script %}
+<script src="jquery-3.7.1.min.js"></script>
+<script src="socket.io/socket.io.js"></script>
+<script>
+$(document).ready(() => {
+    // 소켓 연결
+    const socket = io('/');
+    const matchSocket = io('/match');
+    
+    // 매칭 참여
+    matchSocket.on('connect', () => {
+        matchSocket.emit('join_match', {
+        name: document.cookie.name,
+        user_id: sessionStorage.getItem('user_id')});
+    });
+
+    matchSocket.on('match_complete', (data) => {
+        $('#message').html('매칭이 완료되었습니다!<br>잠시 후 게임으로 이동합니다.');
+        setTimeout(() => {
+            document.location = '/game';
+        }, 7000);
+    });
+
+    matchSocket.emit('set_socket_id', {user_id: sessionStorage.getItem('user_id')});
+
+    socket.on('alert', (data) => {
+        alert(data.message);
+    });
+
+    socket.on('disconnect', (data) => {
+        alert('연결이 끊어졌습니다.');
+        document.location = '../';
+    });
+
+    socket.on('set-storage', (data) => {
+       sessionStorage.setItem(data.key, data.value); 
+    });
+});
+</script>
+{% endblock %}

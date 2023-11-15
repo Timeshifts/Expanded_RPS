@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>확장 가위바위보 게임!</h1>
+<p>일반적인 3개의 손패보다 더 많은 모양을 사용하는 가위바위보를 웹 게임으로 즐겨보세요!
+현재는 5개의 손패를 사용하는 가위바위보도마뱀스팍(Rock, Paper, Scissors, Spock, Lizard, 약자 RPSSL)만 지원 예정입니다.</p><br>
+<p>아래 버튼을 눌러 참여하세요!</p>
+<form action="lobby" accept-charset="utf-8" method="get">
+    이름: <input id="name" name="name" type="text" maxlength=8 value="여기에 입력" /><br>
+    <input id="join" type="submit" value="참여" />
+</form>
+{% endblock %}
+
+{% block script %}
+<script src="jquery-3.7.1.min.js"></script>
+<script src="socket.io/socket.io.js"></script>
+<script>
+$(document).ready(() => {
+    // 소켓 연결
+    const socket = io('/', {});
+
+    // 자신의 user_id를 sessionStorage에 저장
+    socket.on('set_storage', (data) => {
+        sessionStorage.setItem(data.key, data.value); 
+    });
+    
+});
+</script>
+{% endblock %}
