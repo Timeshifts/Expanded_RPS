@@ -17,9 +17,7 @@ $(document).ready(() => {
     
     // 매칭 참여
     matchSocket.on('connect', () => {
-        matchSocket.emit('join_match', {
-        name: document.cookie.name,
-        user_id: sessionStorage.getItem('user_id')});
+        matchSocket.emit('join_match', {});
     });
 
     matchSocket.on('match_complete', (data) => {
@@ -29,8 +27,6 @@ $(document).ready(() => {
         }, 7000);
     });
 
-    matchSocket.emit('set_socket_id', {user_id: sessionStorage.getItem('user_id')});
-
     socket.on('alert', (data) => {
         alert(data.message);
     });
@@ -38,10 +34,6 @@ $(document).ready(() => {
     socket.on('disconnect', (data) => {
         alert('연결이 끊어졌습니다.');
         document.location = '../';
-    });
-
-    socket.on('set-storage', (data) => {
-       sessionStorage.setItem(data.key, data.value); 
     });
 });
 </script>
