@@ -1,0 +1,18 @@
+{% if isloggedin %}
+<h4>로그인되어 있습니다.</h4>
+<button type="button" onclick="logout()">로그아웃</button>
+{% else %}
+<div class="login-form">
+    <h1>로그인</h1>
+    {% if error_message %}
+    <h2 class="error-message">{{error_message}}</h2>
+    {% endif %}
+    <form id="login-form" action="/login" method="post">
+        <input type="text" name="username" placeholder="이름" required maxlength="8"><br>
+        <input type="password" name="password" placeholder="비밀번호" required><br>
+        <button type="button" onclick="login()">로그인</button>
+        <button type="button" onclick="register()">회원가입</button>
+    </form>
+</div>
+{% endif %}
+<script src="login.js"></script>

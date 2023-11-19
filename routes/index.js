@@ -1,10 +1,12 @@
 const express = require('express');
 
+const functions = require('./functions');
+
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        res.render('index', { title: '확장 가위바위보 게임' });
+        functions.render(req, res, {});
     } catch (err) {
         console.error(err);
         next(err);

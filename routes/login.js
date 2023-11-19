@@ -3,6 +3,8 @@ const router = express.Router();
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
+const functions = require('./functions');
+
 dotenv.config();
 
 connection = mysql.createConnection({
@@ -13,13 +15,9 @@ connection = mysql.createConnection({
 });
 
 router.get('/', async (req, res, next) => {
-    console.log(req.query);
     try {
-        if (!req.session.loggedin) {
-            res.render('login', { title: '로그인' });
-        } else {
-            res.redirect('/');
-        }
+		functions.render(req, res, 
+            {page: "login", title: '로그인'});
     } catch (err) {
         console.error(err);
         next(err);
@@ -49,11 +47,13 @@ router.post('/', function(req, res) {
 						res.redirect('/');
 						res.end();
 					} else {
-						res.render('login', { title: '로그인',
+						functions.render(req, res, 
+							{page: "login", title: '로그인',
 						error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
 					}
 				} else {
-					res.render('login', { title: '로그인',
+					functions.render(req, res, 
+						{page: "login", title: '로그인',
 					error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
 				}			
 			});
@@ -62,7 +62,8 @@ router.post('/', function(req, res) {
 		login(req, res);
 		
 	} else {
-		res.render('login', { title: '로그인',
+		functions.render(req, res, 
+			{page: "login", title: '로그인',
 		error_message: '아이디와 비밀번호를 입력해 주세요.'});
 	}
 });

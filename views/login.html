@@ -1,33 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="login-form">
-    <h1>로그인</h1>
-    {% if error_message %}
-    <h2 class="error-message">{{error_message}}</h2>
-    {% endif %}
-    <form id="login-form" action="/login" method="post">
-        <input type="text" name="username" placeholder="이름" required maxlength="8"><br>
-        <input type="password" name="password" placeholder="비밀번호" required><br>
-        <button type="button" onclick="login()">로그인</button>
-        <button type="button" onclick="register()">회원가입</button>
-    </form>
-</div>
+{% include "login_form.html" %}
 {% endblock %}
 
 {% block script %}
-<script src="jquery-3.7.1.min.js"></script>
-<script src="socket.io/socket.io.js"></script>
-<script>
-    function register() {
-        let login_form = document.getElementById("login-form")
-        login_form.action = "/register"
-        login_form.submit();
-    }
-    function login() {
-        let login_form = document.getElementById("login-form")
-        login_form.action = "/login"
-        login_form.submit();
-    }
-</script>
 {% endblock %}

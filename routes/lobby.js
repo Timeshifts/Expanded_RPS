@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const functions = require('./functions');
 
 dotenv.config({ path: '../.env'});
 
@@ -9,7 +10,8 @@ const router = express.Router();
 router.get('/', async (req, res, next) => {
 
     try {
-        res.render('lobby', { title: '확장 가위바위보 로비', isloggedin: req.session.isloggedin});
+        functions.render(req, res, 
+            {page: "lobby", title: '로비'});
     } catch (err) {
         console.error(err);
         next(err);

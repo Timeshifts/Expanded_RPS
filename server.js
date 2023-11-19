@@ -70,12 +70,6 @@ function restrict(req, res, next) {
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.get('/logout', function(req, res) {
-  req.session.loggedin = false;
-	res.send('<center><h1>성공적으로 로그아웃되었습니다.</h1><h1><a href="/">돌아가기</a></H1></center>');
-	res.end();
-});
-
 // 소켓 서버 시작
 io.on('connection', (socket) => {
 
@@ -140,8 +134,10 @@ matchNamespace.on('connection', (socket) => {
   
   // 연결이 끊기면 매칭 풀에서 삭제
   socket.on('disconnect', (data) => {
-    const index = matchpool.indexOf(user_id);
-    if (index != -1) matchpool.splice(index, 1);
+    for (let i = 0; i < matchpool.length; i++) {
+      if (matchpool[i].user_id === user.user_id) matchpool.splice(i, 1);
+      break;
+    }
   })
 
 });
@@ -159,6 +155,10 @@ app.use('/game', restrict, gameRouter);
 
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
+app.get('/logout', function(req, res) {
+  req.session.loggedin = false;
+	res.redirect('/');
+});
 
 app.use((req, res) => {
   res.status(404).send(`<p>404: 잘못된 주소입니다.</p><br><a href="http://${host}:${port}">메인 화면으로 돌아가기</a>`);

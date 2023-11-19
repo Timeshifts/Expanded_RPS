@@ -3,6 +3,7 @@ const router = express.Router();
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
+const functions = require('./functions');
 
 dotenv.config();
 
@@ -23,12 +24,14 @@ router.post('/', function(req, res) {
 	if (username && password) {
 		
 		if (username.length > 8) {
-			res.render('login', { title: '로그인',
-			error_message: '이름은 최대 8자까지 가능합니다.'});
+			functions.render(req, res, 
+				{page: "login", title: '로그인',
+				error_message: '이름은 최대 8자까지 가능합니다.'});
 			return;
 		} else if (password.length < 4) {
-			res.render('login', { title: '로그인',
-			error_message: '비밀번호는 4자 이상으로 설정해 주세요.'});
+			functions.render(req, res, 
+				{page: "login", title: '로그인',
+				error_message: '비밀번호는 4자 이상으로 설정해 주세요.'});
 			return;
 		}
 
@@ -49,11 +52,12 @@ router.post('/', function(req, res) {
 						if (error) console.log(error);
 						else console.log(data);
 					});
-
-					res.render('login', { title: '로그인',
+					functions.render(req, res, 
+						{page: "login", title: '로그인',
 					error_message: '등록되었습니다! 다시 로그인해 주세요.'});
 				} else {
-					res.render('login', { title: '로그인',
+					functions.render(req, res, 
+						{page: "login", title: '로그인',
 					error_message: '이미 존재하는 이름입니다!'});
 				}			
 			});
@@ -62,7 +66,8 @@ router.post('/', function(req, res) {
 		register(req, res);
 		
 	} else {
-		res.render('login', { title: '로그인',
+		functions.render(req, res, 
+			{page: "login", title: '로그인',
 			error_message: '이름과 비밀번호를 입력해 주세요.'});
 	}
 });
