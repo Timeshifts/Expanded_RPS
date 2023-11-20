@@ -24,48 +24,57 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+const login_title = '로그인';
+
 router.post('/', function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
 	console.log(`${username} trying to login`);
 
-	if (username && password) {
-
-		const checkHash = async (password, hashedPassword) => {
-			return await bcrypt.compare(password, hashedPassword)
-		}
-		  
-		const login = async (req, res) => {
-
-			connection.query('SELECT * FROM user WHERE username = ?', [username], async function(error, results, fields) {
-				if (error) throw error;
-				if (results.length > 0) {
-					if (await checkHash(password, results[0].password)) {
-						req.session.loggedin = true;
-						req.session.username = username;
-						req.session.uid = results[0].id;
-						res.redirect('/');
-						res.end();
-					} else {
-						functions.render(req, res, 
-							{page: "login", title: '로그인',
-						error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
-					}
-				} else {
-					functions.render(req, res, 
-						{page: "login", title: '로그인',
-					error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
-				}			
-			});
-		};
-		
-		login(req, res);
-		
-	} else {
+	if (!(username && password)) {
 		functions.render(req, res, 
-			{page: "login", title: '로그인',
+			{page: "login", title: login_title,
 		error_message: '아이디와 비밀번호를 입력해 주세요.'});
+		return;
 	}
+
+	const login_query = () => {
+		connection.query('SELECT * FROM user WHERE username = ?', [username], login);
+	};
+	
+	const checkHash = async (password, hashedPassword) => {
+		return await bcrypt.compare(password, hashedPassword)
+	}
+
+	const login = async (error, results, fields) => {
+		if (error) throw error;
+		if (results.length <= 0) {
+			functions.render(req, res, 
+				{page: "login", title: login_title,
+			error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
+			return;
+		}
+		if (req.session.loggedin === true) {
+			functions.render(req, res, 
+				{page: "login", title: login_title,
+			error_message: '이미 로그인한 계정입니다!'});
+			return;
+		}
+		if (await checkHash(password, results[0].password)) {
+			req.session.loggedin = true;
+			req.session.username = username;
+			req.session.uid = results[0].id;
+			res.redirect('/');
+			res.end();
+		} else {
+			functions.render(req, res, 
+				{page: "login", title: login_title,
+			error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
+		}		
+	}
+
+	login_query();
+		
 });
 
 module.exports = router;
