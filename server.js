@@ -13,7 +13,6 @@ const lobbyRouter = require('./routes/lobby.js');
 const gameRouter = require('./routes/game.js');
 const loginRouter = require('./routes/login.js');
 const registerRouter = require('./routes/register.js');
-const e = require('express');
 
 dotenv.config();
 
@@ -92,15 +91,39 @@ class User {
   }
 }
 
+const GAME_STAGE = {
+  WAIT_ANOTHER: "wait_another",
+  CHOICE_HAND: "choice_hand",
+  WAIT_HAND: "wait_hand",
+  SHOW_RESULT: "show_result"
+}
+
+Object.freeze(GAME_STAGE);
+
+class Room {
+  constructor(users) {
+    this.users = users;
+    this.state = GAME_STAGE.WAIT_ANOTHER;
+    this.is_ready = Array(users.length).fill(false);
+    this.hands = Array(users.length);
+  }
+
+  userIndex(user) {
+    for (let i = 0; i < this.users.length; i++) {
+      if (this.users[i].user_id === user.user_id) return i;
+    }
+  }
+
+}
+
 let matchpool = [];
-let room = [];
+let rooms = [];
 
 // 클라이언트 매칭 namespace
 matchNamespace.on('connection', (socket) => {
 
   const session = socket.request.session;
   let user = new User(session.uid, socket.id);
-
 
   // 클라이언트가 필요한 정보를 보내면
   socket.on('join_match', (data) => {
@@ -120,15 +143,15 @@ matchNamespace.on('connection', (socket) => {
       console.log(`Room (${matchpool}) created.`);
 
       // 매칭 풀을 방으로 넣고
-      let room_id = room.length;
-      room.push(matchpool);
+      let room_id = rooms.length;
+      let room = new Room([matchpool[0], matchpool[1]]);
+      rooms.push(room);
 
       // 클라이언트에게 알려주기
       io.of('/match').to(matchpool[0].socket_id).emit('match_complete', {'room_id': room_id});
       io.of('/match').to(matchpool[1].socket_id).emit('match_complete', {'room_id': room_id});
       
       matchpool = [];
-
     }
   });
   
@@ -138,12 +161,78 @@ matchNamespace.on('connection', (socket) => {
       if (matchpool[i].user_id === user.user_id) matchpool.splice(i, 1);
       break;
     }
-  })
-
+  });
 });
+
+// 소켓의 방 집합에서 게임 방 번호 찾기
+function roomIndex(rooms) {
+  for (const room of rooms) {
+    if (room.includes("game")) return parseInt(room.substring(4));
+  }
+}
 
 // 게임 namespace
 gameNamespace.on('connection', (socket) => {
+
+  const rpssl_rules = {
+    'scissors': ['paper', 'lizard'],
+    'rock': ['lizard', 'scissors'],
+    'paper': ['rock', 'spock'],
+    'lizard': ['spock', 'paper'],
+    'spock': ['scissors', 'rock']
+  };
+
+  // 0은 무승부, -1이 1번 플레이어, 1이 2번 플레이어 승리
+  function rpssl_result(hands) {
+    if (hands[0] === hands[1]) return 0;
+    if (rpssl_rules[hands[0]].includes(hands[1])) return -1;
+    else return 1;
+  }
+
+  const session = socket.request.session;
+  let user = new User(session.uid, socket.id);
+
+  let room_index = undefined; 
+  let user_index = undefined;
+  
+  for (let i = 0; i < rooms.length; i++) {
+    if (rooms[i].userIndex(user) != -1) {
+      // 소켓 ID 갱신
+      socket.join(`game${i}`);
+      room_index = roomIndex(socket.rooms);
+      user_index = rooms[room_index].userIndex(user);
+      rooms[room_index].users[user_index].socket_id = socket.id;
+      // 준비 완료
+      rooms[i].is_ready[user_index] = true;
+      console.log(`Room ${i} user ${user_index} is ready.`)
+      if (rooms[i].is_ready.every(value => value === true)) {
+        gameNamespace.to(`game${i}`).emit('change_state', {state: GAME_STAGE.CHOICE_HAND});
+        rooms[i].state = GAME_STAGE.CHOICE_HAND;
+      }
+      break;
+    }
+  }
+
+  socket.on('choose_hand', (hand) => {
+    rooms[room_index].hands[user_index] = hand;
+    if (!rooms[room_index].hands.includes(undefined)) {
+      let result = rpssl_result(rooms[room_index].hands);
+      gameNamespace.to(rooms[room_index].users[0].socket_id).emit('change_state',
+      {state: GAME_STAGE.SHOW_RESULT,
+      hands: rooms[room_index].hands,
+      winner: result});
+      gameNamespace.to(rooms[room_index].users[1].socket_id).emit('change_state',
+      {state: GAME_STAGE.SHOW_RESULT,
+      hands: rooms[room_index].hands.slice().reverse(),
+      winner: result * -1});
+      rooms[room_index].state = GAME_STAGE.SHOW_RESULT;
+    }
+  });
+
+  socket.on('disconnect', () => {
+    gameNamespace.to(`game${room_index}`).emit('other_disconnect');
+    rooms.splice(room_index);
+  });
 
 });
 

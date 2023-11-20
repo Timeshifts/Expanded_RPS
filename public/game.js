@@ -17,11 +17,21 @@ function draw_game(state) {
         $("#game_view").html(`<h2>원하는 손을 선택하세요!</h2>
         <div id="hands"></div>`);
         $("#hands").html(`
-        <img src="image/scissors.png" alt="가위" height="128" width="128" />
-        <img src="image/rock.png" alt="바위" height="128" width="128" />
-        <img src="image/paper.png" alt="보" height="128" width="128" />
-        <img src="image/lizard.png" alt="도마뱀" height="128" width="128" />
-        <img src="image/spock.png" alt="스팍" height="128" width="128" />`);
+        <button type="button" id="button-scissors">
+            <img src="image/scissors.png" alt="가위" height="128" width="128" />
+        </button>
+        <button type="button" id="button-rock">
+            <img src="image/rock.png" alt="바위" height="128" width="128" />
+        </button>
+        <button type="button" id="button-paper">
+            <img src="image/paper.png" alt="보" height="128" width="128" />
+        </button>
+        <button type="button" id="button-lizard">
+            <img src="image/lizard.png" alt="도마뱀" height="128" width="128" />
+        </button>
+        <button type="button" id="button-spock">
+            <img src="image/spock.png" alt="스팍" height="128" width="128" />
+        </button>`);
     } else if (state === GAME_STAGE.WAIT_HAND) {
         $("#game_view").html(`<h2>상대방의 결정을 기다리는 중...</h2>
         <div id="hands"></div>`);
@@ -29,10 +39,16 @@ function draw_game(state) {
         <img id="choose_hand" height="128" width="128"/>`)
     } else if (state === GAME_STAGE.SHOW_RESULT) {
         $("#game_view").html(`<h2 id=result>결과</h2>
-        <img id="my_hand" height="128" width="128"/>
-        <div id="mark"></div>
-        <img id="other_hand" height="128" width="128"/>`)
+        <div>
+        <img id="my_hand" height="128" width="128"/> vs
+        <img id="other_hand" height="128" width="128"/>
+        </div>`)
     }
+}
+
+function choose_hand(socket, hand) {
+    socket.emit('choose_hand', hand);
+    $("#game_view").html(`<h4>선택한 손: ${hand}</h4><h4>다른 플레이어를 기다리는 중...</h4>`)
 }
 
 $(document).ready(() => {
@@ -42,12 +58,30 @@ $(document).ready(() => {
     let game_stage = GAME_STAGE.WAIT_ANOTHER;
     draw_game(game_stage);
 
-    // 게임 참여
-    gameSocket.on('connect', () => {
-        //gameSocket.emit
+    gameSocket.on('change_state', (data) => {
+        state = data.state;
+        draw_game(state);
+        if (state === GAME_STAGE.CHOICE_HAND) {
+            $('#button-scissors').click(() => choose_hand(gameSocket, 'scissors'));
+            $('#button-rock').click(() => choose_hand(gameSocket, 'rock'));
+            $('#button-paper').click(() => choose_hand(gameSocket, 'paper'));
+            $('#button-lizard').click(() => choose_hand(gameSocket, 'lizard'));
+            $('#button-spock').click(() => choose_hand(gameSocket, 'spock'));
+        }
+        if (state === GAME_STAGE.SHOW_RESULT) {
+            $('#my_hand').attr('src', `image/${data.hands[0]}.png`);
+            $('#other_hand').attr('src', `image/${data.hands[1]}.png`);
+            if (data.winner === 0) result_text = '무승부';
+            else if (data.winner === -1) result_text = '승리!';
+            else if (data.winner === 1) result_text = '패배';
+            $('#result').html(result_text);
+        }
     });
 
-    socket.emit('set_socket_id', { user_id: sessionStorage.getItem('user_id') });
+    gameSocket.on('other_disconnect', (data) => {
+        alert('상대방의 연결이 끊어졌습니다.');
+        document.location = '../';
+    });
 
     socket.on('alert', (data) => {
         alert(data.message);

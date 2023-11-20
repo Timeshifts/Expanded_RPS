@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        res.render('game', { title: '확장 가위바위보 게임',
-        isloggedin: req.session.loggedin });
+        functions.render(req, res, 
+            {page: "game", title: '확장 가위바위보 게임!'});
     } catch (err) {
         console.error(err);
         next(err);
