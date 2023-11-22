@@ -114,6 +114,11 @@ class Room {
     }
   }
 
+  reMatch() {
+    this.state = GAME_STAGE.CHOICE_HAND;
+    this.is_ready = Array(this.users.length).fill(false);
+    this.hands = Array(this.users.length);
+  }
 }
 
 let matchpool = [];
@@ -214,6 +219,7 @@ gameNamespace.on('connection', (socket) => {
   }
 
   socket.on('choose_hand', (hand) => {
+    if (rooms[room_index].state != GAME_STAGE.CHOICE_HAND) return;
     rooms[room_index].hands[user_index] = hand;
     if (!rooms[room_index].hands.includes(undefined)) {
       let result = rpssl_result(rooms[room_index].hands);
@@ -225,12 +231,28 @@ gameNamespace.on('connection', (socket) => {
       {state: GAME_STAGE.SHOW_RESULT,
       hands: rooms[room_index].hands.slice().reverse(),
       winner: result * -1});
+      rooms[room_index].is_ready.fill(false);
       rooms[room_index].state = GAME_STAGE.SHOW_RESULT;
+    }
+  });
+
+  socket.on('rematch_request', () => {
+    if (rooms[room_index].state != GAME_STAGE.SHOW_RESULT) return;
+    rooms[room_index].is_ready[user_index] = true;
+    if (!rooms[room_index].is_ready.every(value => value === true)) {
+      console.log(`Room ${room_index} user ${user_index} require rematch.`)
+      gameNamespace.to(rooms[room_index].users[1-user_index]
+        .socket_id).emit('rematch_request');
+    } else {  
+      console.log(`Room ${room_index} starting rematch.`)
+      rooms[room_index].reMatch();
+      gameNamespace.to(`game${room_index}`).emit('re_match');
     }
   });
 
   socket.on('disconnect', () => {
     gameNamespace.to(`game${room_index}`).emit('other_disconnect');
+    socket.leave(`game${room_index}`);
     rooms.splice(room_index);
   });
 
