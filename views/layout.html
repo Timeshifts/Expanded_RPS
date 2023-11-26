@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <title>{{title}}</title>
-  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
 <header>
   {% if isloggedin %}
-  <p>안녕하세요, {{username}} 님! <button onclick="document.location = 'logout'">로그아웃</button></p>
+  <p>안녕하세요, {{username}} 님! <button type="button" onclick="document.location = 'logout'">로그아웃</button></p>
   {% else %}
   <p>로그인하지 않은 상태입니다.</p>
   {% endif %}
 </header>
 {% block content %}
 {% endblock %}
+<script src="constant.js"></script>
 {% block script %}
 {% endblock %}
 <footer>

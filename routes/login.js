@@ -38,7 +38,7 @@ router.post('/', function(req, res) {
 		return;
 	}
 
-	const login_query = () => {
+	const loginQuery = () => {
 		connection.query('SELECT * FROM user WHERE username = ?', [username], login);
 	};
 	
@@ -73,7 +73,7 @@ router.post('/', function(req, res) {
 		}		
 	}
 
-	login_query();
+	loginQuery();
 		
 });
 

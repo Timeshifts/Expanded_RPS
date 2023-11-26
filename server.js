@@ -7,12 +7,14 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
+const mysql = require('mysql');
 
 const indexRouter = require('./routes');
 const lobbyRouter = require('./routes/lobby.js');
 const gameRouter = require('./routes/game.js');
 const loginRouter = require('./routes/login.js');
 const registerRouter = require('./routes/register.js');
+const recordRouter = require('./routes/record.js');
 
 dotenv.config();
 
@@ -24,6 +26,65 @@ const server = http.createServer(app);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+let connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'mysql'
+});
+
+connection.query('CREATE DATABASE IF NOT EXISTS expanded_rps', (err, results) => {
+  if (err) {
+    console.error('DB connection failed:', err);
+    process.exit();
+  }
+});
+
+connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'expanded_rps'
+});
+
+const createTableQuery = [
+  `CREATE TABLE user (
+    id int NOT NULL auto_increment PRIMARY KEY,
+    username varchar(16) NOT NULL,
+    password varchar(64) NOT NULL
+  );`,
+  `CREATE TABLE record (
+    id int NOT NULL auto_increment PRIMARY KEY,
+    timestamp bigint NOT NULL,
+    left_uid int NOT NULL,
+    right_uid int NOT NULL,
+    left_hand varchar(16),
+    right_hand varchar(16),
+    score int NOT NULL
+  );`
+]
+
+connection.query('SHOW TABLES LIKE "user"', (err, results) => {
+  if (err) {
+    console.error('DB connection failed:', err);
+    process.exit();
+  }
+  if (results.length <= 0) {
+    console.log('MySQL table not found, creating table...');
+    createTable();
+  }
+});
+
+function createTable() {
+  for (const query of createTableQuery) {
+    connection.query(query, (err, results) => {
+      if (err) {
+        console.error('DB table creation failed:', err);
+        process.exit();
+      }
+    });
+  }
+}
 
 const io = SocketIO(server, { path: "/socket.io/" });
 
@@ -188,7 +249,7 @@ gameNamespace.on('connection', (socket) => {
   };
 
   // 0은 무승부, -1이 1번 플레이어, 1이 2번 플레이어 승리
-  function rpssl_result(hands) {
+  function rpsslResult(hands) {
     if (hands[0] === hands[1]) return 0;
     if (rpssl_rules[hands[0]].includes(hands[1])) return -1;
     else return 1;
@@ -219,15 +280,32 @@ gameNamespace.on('connection', (socket) => {
   }
 
   socket.on('choose_hand', (hand) => {
+    
+    const left = rooms[room_index].users[0];
+    const right = rooms[room_index].users[1];
+
     if (rooms[room_index].state != GAME_STAGE.CHOICE_HAND) return;
     rooms[room_index].hands[user_index] = hand;
     if (!rooms[room_index].hands.includes(undefined)) {
-      let result = rpssl_result(rooms[room_index].hands);
-      gameNamespace.to(rooms[room_index].users[0].socket_id).emit('change_state',
+      let result = rpsslResult(rooms[room_index].hands);
+      const now = Date.now();
+      const query = `INSERT INTO record 
+      (timestamp, left_uid, right_uid, left_hand, right_hand, score)
+      VALUES (?, ?, ?, ?, ?, ?);`;
+      connection.query(query, 
+        [now, 
+        left.user_id,
+        right.user_id,
+        rooms[room_index].hands[0],
+        rooms[room_index].hands[1],
+        result],
+        (err, results) => { if (err) throw err });
+
+      gameNamespace.to(left.socket_id).emit('change_state',
       {state: GAME_STAGE.SHOW_RESULT,
       hands: rooms[room_index].hands,
       winner: result});
-      gameNamespace.to(rooms[room_index].users[1].socket_id).emit('change_state',
+      gameNamespace.to(right.socket_id).emit('change_state',
       {state: GAME_STAGE.SHOW_RESULT,
       hands: rooms[room_index].hands.slice().reverse(),
       winner: result * -1});
@@ -270,6 +348,8 @@ app.get('/logout', function(req, res) {
   req.session.loggedin = false;
 	res.redirect('/');
 });
+
+app.use('/record', recordRouter);
 
 app.use((req, res) => {
   res.status(404).send(`<p>404: 잘못된 주소입니다.</p><br><a href="http://${host}:${port}">메인 화면으로 돌아가기</a>`);

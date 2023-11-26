@@ -1,8 +1,5 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const functions = require('./functions');
-
-dotenv.config({ path: '../.env'});
 
 const router = express.Router();
 
