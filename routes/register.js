@@ -61,7 +61,7 @@ router.post('/', function(req, res) {
 			connection.query('INSERT INTO user (username, password) VALUES(?,?)', [username, hashedPassword],
 			function (error, data) {
 				if (error) console.log(error);
-				else console.log(data);
+				else console.log(`${username} registered.`);
 			});
 	
 			functions.render(req, res, 
