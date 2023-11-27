@@ -1,19 +1,23 @@
-<div>
+<div id="record">
     <h2>전적</h2>
-    <div>
-        <table class="record" id="record-table">
-            <thead>
-                <tr>
-                    <th>시각</th>
-                    <th>내 손</th>
-                    <th>상대의 손</th>
-                    <th>결과</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <canvas class="record" id="record-chart" width="300", height="300"></canvas>
-    </div>
+    <canvas class="record" id="record-chart"></canvas>
+    <table class="record" id="record-table">
+        <thead>
+            <tr>
+                <th>시각</th>
+                <th>내 손</th>
+                <th>상대의 손</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+            <tr>
+                <td class="strong" colspan="3">총 승률</td>
+                <td class="strong" id="win-rate">0.00%</td>
+            </tr>
+        </tfoot>
+    </table>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="record.js"></script>

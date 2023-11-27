@@ -8,9 +8,9 @@
 <body>
 <header>
   {% if isloggedin %}
-  <p>안녕하세요, {{username}} 님! <button type="button" onclick="document.location = 'logout'">로그아웃</button></p>
+  <p class="login_status" id="login">안녕하세요, {{username}} 님! <button type="button" onclick="document.location = 'logout'">로그아웃</button></p>
   {% else %}
-  <p>로그인하지 않은 상태입니다.</p>
+  <p class="login_status" id="logout">로그인하지 않은 상태입니다.</p>
   {% endif %}
 </header>
 {% block content %}

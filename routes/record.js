@@ -16,7 +16,8 @@ connection = mysql.createConnection({
 
 const recordQuery = `SELECT * 
     FROM record
-    WHERE left_uid = ? or right_uid = ?`;
+    WHERE left_uid = ? or right_uid = ?
+    ORDER BY id DESC`;
 
 router.get('/', async (req, res, next) => {
     let id = undefined;

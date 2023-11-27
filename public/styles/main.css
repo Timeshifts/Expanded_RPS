@@ -1,3 +1,73 @@
-h1 {
+* {
     text-align: center;
+}
+
+footer {
+    text-align: left;
+}
+
+body {
+    background-color: rgb(255, 255, 222);
+}
+
+h1, h2 {
+    color: rgb(63, 127, 63);
+}
+
+h1 {
+    font-size: 26pt;
+}
+
+h2 {
+    font-size: 22pt;
+}
+
+button {
+    color: white;
+    background-color: rgb(63, 127, 63);
+    padding: 10px;
+    border-radius: 20px;
+    border-width: 3px;
+    font-weight: bold;
+}
+
+table, th, tr, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table {
+    background-color: aliceblue;
+}
+
+form>input {
+    text-align: left;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+.login_status {
+    text-align: right;
+    font-size: 10pt;
+}
+
+.login_status>button {
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.record {
+    display: inline-block !important;
+}
+
+#record {
+    position: relative;
+    height: 400px;
+}
+
+#record-chart {
+    height: 300px;
+    width: 300px;
 }

@@ -4,6 +4,7 @@
 <h1>확장 가위바위보 게임!</h1>
 <div id="message">매칭 대기 중...<br>
 매칭이 끝나면 자동으로 경기가 시작됩니다.</div>
+<button id="cancel-match" type="button" onclick="location.href = '/'">매칭 취소</button>
 {% endblock %}
 
 {% block script %}
@@ -22,6 +23,7 @@ $(document).ready(() => {
 
     matchSocket.on('match_complete', (data) => {
         $('#message').html('매칭이 완료되었습니다!<br>잠시 후 게임으로 이동합니다.');
+        $('#cancel-match').remove();
         setTimeout(() => {
             document.location = '/game';
         }, 7000);
