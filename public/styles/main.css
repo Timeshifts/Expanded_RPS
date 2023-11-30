@@ -31,6 +31,13 @@ button {
     font-weight: bold;
 }
 
+form {
+    background-color: rgb(127, 255, 127);
+    padding: 20px;
+    width: max-content;
+    line-height: 2;
+}
+
 table, th, tr, td {
     border: 1px solid black;
     border-collapse: collapse;
@@ -63,9 +70,26 @@ form>input {
 }
 
 .record-control {
-    scale: 0.8;
+    border-radius: 0px;
+    scale: 0.9;
     display: inline-block;
     font-weight: bold;
+}
+
+.login-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.error-message {
+    color: red;
+}
+
+.login-input {
+    font-size: 24px;
+    margin-bottom: 25px;
+    border-width: 3px;
 }
 
 #record {
