@@ -1,14 +1,20 @@
 # Expanded RPS(Rock, Paper, Scissors)
 
 ## 미완성
-현재 이 리포지토리는 미 완성 상태입니다. 그대로 실행하였을 때 문제가 없음 혹은 정상 작동을 보장할 수 없습니다.
+현재 이 리포지토리는 미 완성 상태입니다.
 
 ## 소개
 일반적인 3개의 손패보다 더 많은 모양을 사용하는 가위바위보를 웹 게임으로 즐겨보세요!<br>
-현재는 5개의 손패를 사용하는 가위바위보도마뱀스팍(Rock, Paper, Scissors, Lizard, Spock, 약자 RPSLS)만 지원 예정입니다.
+현재 5개의 손패를 사용하는 가위바위보도마뱀스팍(Rock, Paper, Scissors, Lizard, Spock, 약자 RPSLS)만 지원합니다.
 
 ## 실행 방법
-```node server.js```를 실행해 주세요.
+```node server.js```를 실행해 주세요.<br>
+이 프로그램은 작동에 MySQL 연결이 필요합니다. 연결에 필요한 정보를 아래 '환경 변수 설정' 에 맞추어 입력해 주세요.
+
+## 환경 변수 설정
+```.env.template``` 파일을 ```.env``` 이름으로 변경한 뒤 다음을 참고하세요.
+- COOKIE_SECRET=YOUR_SECRET: YOUR_SECRET을 임의의 문자열로 변경해 주세요.
+- DB_USER, DB_PASSWORD: DB(MySQL)에서 사용할 계정명과 비밀번호로 변경해 주세요.
 
 ## RPSLS 패 읽는 법
 ![이미지 삽입 예정](/확장_가위바위보_이미지)
