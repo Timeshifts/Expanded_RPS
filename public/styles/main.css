@@ -62,6 +62,12 @@ form>input {
     display: inline-block !important;
 }
 
+.record-control {
+    scale: 0.8;
+    display: inline-block;
+    font-weight: bold;
+}
+
 #record {
     position: relative;
     height: 400px;

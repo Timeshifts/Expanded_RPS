@@ -1,5 +1,9 @@
 const url = `/record`;
-fetch(url)
+
+function fetchData(page, refreshChart) {
+    if (page === undefined) fetchUrl = url;
+    else fetchUrl = `${url}?page=${page}`;
+    fetch(fetchUrl)
     .then((res) => {
         return res.json();
     })
@@ -7,58 +11,103 @@ fetch(url)
         return constructData(jsonData);
     })
     .then((data) => {
-        showData(data);
+        showData(data, refreshChart);
     })
     .catch((err) => {
         console.error("Error from fetching record:", err);
     });
+}
+
+fetchData(1, true);
+
+let showPage = 1;
+
+async function loadPage(page) {
+    await fetch(url)
+        .then((res) => { 
+            return res.json(); 
+        })
+        .then((jsonData) => {
+            totalLength = jsonData.total_length;
+        })
+        .catch((err) => {
+            console.error("Error from fetching record:", err);
+        });
+
+    const maxPage = Math.ceil(totalLength/10);
+    if (page === -1) page = maxPage;
+    if (!page || page > maxPage || page === showPage) return;
+    showPage = page;
+
+    fetchData(page, false);
+}
+
+const firstPage = () => loadPage(1);
+const prevPage = () => loadPage(showPage-1);
+const nextPage = () => loadPage(showPage+1);
+const lastPage = () => loadPage(-1);
+
+function flipRecord(record) {
+    record.score *= -1;
+    const temp = record.left_hand;
+    record.left_hand = record.right_hand;
+    record.right_hand = temp;
+}
 
 function constructData(jsonData) {
     data = [0, 0, 0];
     const id = jsonData.id;
+    const maxPage = Math.ceil(jsonData.total_length/10);
     const records = jsonData.records;
-    for (record of records) {
-        let score = (record.left_uid == id) ? record.score : record.score * -1;
+    for (const record of records) {
+        if (record.left_uid != id) flipRecord(record);
+        let score = record.score;
         score = parseInt(score) + 1; data[score] += 1;
     }
-    return {records: records, score: data};
+    return {records: records, score: data, maxPage: maxPage};
 }
 
-function showData(data) {
-    const chartData = {
-        labels: [
-            '승',
-            '무',
-            '패'
-        ],
-        datasets: [{
-            label: '횟수',
-            data: data.score,
-            backgroundColor: [
-                'rgb(255, 63, 63)',
-                'rgb(63, 255, 63)',
-                'rgb(63, 63, 255)'
+function showData(data, refreshChart) {
+    if (refreshChart) {
+        const chartData = {
+            labels: [
+                '승',
+                '무',
+                '패'
             ],
-            hoverOffset: 4
-        }]
+            datasets: [{
+                label: '횟수',
+                data: data.score,
+                backgroundColor: [
+                    'rgb(255, 63, 63)',
+                    'rgb(63, 255, 63)',
+                    'rgb(63, 63, 255)'
+                ],
+                hoverOffset: 4
+            }]
+        }
+
+        const options = {
+            responsive: false
+        }
+
+        const config = {
+            type: 'doughnut',
+            data: chartData,
+            options: options
+        }
+
+        const chart_canvas = document.getElementById('record-chart');
+        const record_chart = new Chart(chart_canvas, config);
     }
 
-    const options = {
-        responsive: false
-    }
-
-    const config = {
-        type: 'doughnut',
-        data: chartData,
-        options: options
-    }
-
-    const chart_canvas = document.getElementById('record-chart');
-    const record_chart = new Chart(chart_canvas, config);
+    const record_indicator = document.getElementById('record-indicator');
+    record_indicator.innerHTML = `${showPage} / ${data.maxPage}`;
 
     const record_table = document.getElementById('record-table');
     const record_tbody = record_table.getElementsByTagName('tbody')[0];
-
+    record_tbody.innerHTML = "";
+    
     const max_count = 10;
     let count = 0;
 
@@ -83,7 +132,7 @@ function showData(data) {
         rightHandCell.innerHTML = hands[record.right_hand];
         let score = undefined;
         let score_color = '#cccccc';
-        if (record.score == 1) {
+        if (record.score == -1) {
             score = '승';
             score_color = '#ffcccc';
         } else if (record.score == 0) {

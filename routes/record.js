@@ -30,10 +30,15 @@ router.get('/', async (req, res, next) => {
     } else {
         id = req.query.id;
     }
+
+    let page = parseInt(req.query.page);
+    if (isNaN(page) || page < 0) page = 1;
+
     connection.query(recordQuery, [id, id], (err, results) => {
         if (err) throw err;
-        console.log(`record request of ID ${id} incoming`);
-        res.json({id: id, records: results});
+        console.log(`record request of ID ${id} at page ${page} incoming`);
+        const response = results.slice(10*(page-1), 10*page);
+        res.json({id: id, total_length: results.length, records: response});
     });
 });
 

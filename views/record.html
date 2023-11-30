@@ -1,23 +1,32 @@
 <div id="record">
     <h2>전적</h2>
     <canvas class="record" id="record-chart"></canvas>
-    <table class="record" id="record-table">
-        <thead>
-            <tr>
-                <th>시각</th>
-                <th>내 손</th>
-                <th>상대의 손</th>
-                <th>결과</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
-            <tr>
-                <td class="strong" colspan="3">총 승률</td>
-                <td class="strong" id="win-rate">0.00%</td>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="record">
+        <table class="record" id="record-table">
+            <thead>
+                <tr>
+                    <th>시각</th>
+                    <th>내 손</th>
+                    <th>상대의 손</th>
+                    <th>결과</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td class="strong" colspan="3">총 승률</td>
+                    <td class="strong" id="win-rate">0.00%</td>
+                </tr>
+            </tfoot>
+        </table><br>
+        <div class="record-control">
+            <button type="button" onclick="firstPage()">←</button>
+            <button type="button" onclick="prevPage()">&lt;</button>
+            <button type="button" onclick="nextPage()">&gt;</button>
+            <button type="button" onclick="lastPage()">→</button><br>
+        </div>
+        <div id="record-indicator">0 / 0</div>
+    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="record.js"></script>
