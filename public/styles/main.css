@@ -96,6 +96,14 @@ form>input {
     font-size: 28px;
 }
 
+#rules {
+    text-align: end;
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    z-index: 1;
+}
+
 #record {
     position: relative;
     height: 400px;
