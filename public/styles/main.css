@@ -92,6 +92,10 @@ form>input {
     border-width: 3px;
 }
 
+.hands-button {
+    font-size: 28px;
+}
+
 #record {
     position: relative;
     height: 400px;
@@ -100,4 +104,12 @@ form>input {
 #record-chart {
     height: 300px;
     width: 300px;
+}
+
+#result-detail {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 32px;
+    line-height: 128px;
 }
