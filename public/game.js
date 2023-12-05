@@ -10,6 +10,18 @@ Object.freeze(GAME_STAGE)
 let select_hand = undefined;
 let other_hand = undefined;
 let state = undefined;
+let showing_rules = false;
+
+function toggle_rules() {
+    showing_rules = !showing_rules;
+    if (showing_rules) {
+        $("#rules").html(`
+        <img src="image/rules.png" class="rules" alt="규칙" height="256" width="256" />
+        <button class="rules" onclick="toggle_rules()">규칙</button>`);
+    } else {
+        $("#rules").html(`<button class="rules" onclick="toggle_rules()">규칙</button>`);
+    }
+}
 
 function escape_game() {
     if (state !== undefined) return;
@@ -20,7 +32,7 @@ function escape_game() {
 function draw_game(state) {
     if (state === GAME_STAGE.WAIT_ANOTHER) {
         $("#game_view").html(`<p>다른 플레이어를 기다리는 중...</p>`);
-        setTimeout(escape_game, 1000);
+        setTimeout(escape_game, 10000);
     } else if (state === GAME_STAGE.CHOICE_HAND) {
         $("#game_view").html(`<h2>원하는 손을 선택하세요!</h2>
         <div id="hands"></div>`);
@@ -49,8 +61,8 @@ function draw_game(state) {
         $("#game_view").html(`<h2 id=result>결과</h2>
         <div>
         <div id="result-detail">
-        <img id="my-hand" height="128" width="128"/> vs
-        <img id="other-hand" height="128" width="128"/>
+        <img id="my-hand" alt="자신의 손" height="128" width="128"/> vs
+        <img id="other-hand" alt="상대의 손" height="128" width="128"/>
         </div>
         <br>
         <button type="button" id="button-rematch">재대결</button>

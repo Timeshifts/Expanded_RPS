@@ -3,7 +3,7 @@ const router = express.Router();
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
-const functions = require('./functions');
+const render = require('./render');
 
 dotenv.config();
 
@@ -16,7 +16,7 @@ connection = mysql.createConnection({
 
 router.get('/', async (req, res, next) => {
     try {
-		functions.render(req, res, 
+		render.render(req, res, 
             {page: "login", title: '로그인'});
     } catch (err) {
         console.error(err);
@@ -32,7 +32,7 @@ router.post('/', function(req, res) {
 	console.log(`${username} trying to login`);
 
 	if (!(username && password)) {
-		functions.render(req, res, 
+		render.render(req, res, 
 			{page: "login", title: login_title,
 		error_message: '아이디와 비밀번호를 입력해 주세요.'});
 		return;
@@ -49,13 +49,13 @@ router.post('/', function(req, res) {
 	const login = async (error, results, fields) => {
 		if (error) throw error;
 		if (results.length <= 0) {
-			functions.render(req, res, 
+			render.render(req, res, 
 				{page: "login", title: login_title,
 			error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
 			return;
 		}
 		if (req.session.loggedin === true) {
-			functions.render(req, res, 
+			render.render(req, res, 
 				{page: "login", title: login_title,
 			error_message: '이미 로그인한 계정입니다!'});
 			return;
@@ -67,7 +67,7 @@ router.post('/', function(req, res) {
 			res.redirect('/');
 			res.end();
 		} else {
-			functions.render(req, res, 
+			render.render(req, res, 
 				{page: "login", title: login_title,
 			error_message: '아이디와 비밀번호를 다시 확인해 주세요.'});
 		}		

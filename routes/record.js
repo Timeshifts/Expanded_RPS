@@ -3,8 +3,6 @@ const mysql = require('mysql');
 const dotenv = require('dotenv');
 const router = express.Router();
 
-const functions = require('./functions');
-
 dotenv.config();
 
 connection = mysql.createConnection({
@@ -18,6 +16,13 @@ const recordQuery = `SELECT *
     FROM record
     WHERE left_uid = ? or right_uid = ?
     ORDER BY id DESC`;
+
+function flipRecord(record) {
+        record.score *= -1;
+        const temp = record.left_hand;
+        record.left_hand = record.right_hand;
+        record.right_hand = temp;
+    }
 
 router.get('/', async (req, res, next) => {
     let id = undefined;
@@ -38,7 +43,15 @@ router.get('/', async (req, res, next) => {
         if (err) throw err;
         console.log(`record request of ID ${id} at page ${page} incoming`);
         const response = results.slice(10*(page-1), 10*page);
-        res.json({id: id, total_length: results.length, records: response});
+        
+        let data = [0, 0, 0];
+
+        for (const record of results) {
+            if (record.left_uid != id) flipRecord(record);
+            let score = record.score;
+            score = parseInt(score) + 1; data[score] += 1;
+        }
+        res.json({id: id, total_length: results.length, score: data, records: response});
     });
 });
 

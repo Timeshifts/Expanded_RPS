@@ -47,24 +47,11 @@ const prevPage = () => loadPage(showPage-1);
 const nextPage = () => loadPage(showPage+1);
 const lastPage = () => loadPage(-1);
 
-function flipRecord(record) {
-    record.score *= -1;
-    const temp = record.left_hand;
-    record.left_hand = record.right_hand;
-    record.right_hand = temp;
-}
-
 function constructData(jsonData) {
     data = [0, 0, 0];
-    const id = jsonData.id;
     const maxPage = Math.ceil(jsonData.total_length/10);
     const records = jsonData.records;
-    for (const record of records) {
-        if (record.left_uid != id) flipRecord(record);
-        let score = record.score;
-        score = parseInt(score) + 1; data[score] += 1;
-    }
-    return {records: records, score: data, maxPage: maxPage};
+    return {records: records, score: jsonData.score, maxPage: maxPage};
 }
 
 function showData(data, refreshChart) {

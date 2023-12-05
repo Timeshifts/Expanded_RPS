@@ -1,5 +1,5 @@
 const express = require('express');
-const functions = require('./functions');
+const render = require('./render');
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', async (req, res, next) => {
 
     try {
-        functions.render(req, res, 
+        render.render(req, res, 
             {page: "lobby", title: '로비'});
     } catch (err) {
         console.error(err);

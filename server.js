@@ -352,7 +352,7 @@ app.get('/logout', function(req, res) {
 app.use('/record', recordRouter);
 
 app.use((req, res) => {
-  res.status(404).send(`<p>404: 잘못된 주소입니다.</p><br><a href="http://${host}:${port}">메인 화면으로 돌아가기</a>`);
+  res.status(404).send(`<p>404: 잘못된 주소입니다.</p><br><a href="/">메인 화면으로 돌아가기</a>`);
 });
 
 server.listen(port, () => {

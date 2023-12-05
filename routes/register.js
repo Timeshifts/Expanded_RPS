@@ -3,7 +3,7 @@ const router = express.Router();
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
-const functions = require('./functions');
+const render = require('./render');
 
 dotenv.config();
 
@@ -24,18 +24,18 @@ router.post('/', function(req, res) {
 	const saltRounds = 12;
 
 	if (!username && password) {
-		functions.render(req, res, 
+		render.render(req, res, 
 			{page: "login", title: '로그인',
 			error_message: '이름과 비밀번호를 입력해 주세요.'});
 		return;
 	}
 	if (username.length > 8) {
-		functions.render(req, res, 
+		render.render(req, res, 
 			{page: "login", title: '로그인',
 			error_message: '이름은 최대 8자까지 가능합니다.'});
 		return;
 	} else if (password.length < minimumPasswordLength) {
-		functions.render(req, res, 
+		render.render(req, res, 
 			{page: "login", title: '로그인',
 			error_message: `비밀번호는 ${minimumPasswordLength}자 이상으로 설정해 주세요.`});
 		return;
@@ -53,7 +53,7 @@ router.post('/', function(req, res) {
 		function(error, results, fields) {
 			if (error) throw error;
 			if (results.length > 0) {
-				functions.render(req, res, 
+				render.render(req, res, 
 				{page: "login", title: '로그인',
 				error_message: '이미 존재하는 이름입니다!'});
 				return;
@@ -64,7 +64,7 @@ router.post('/', function(req, res) {
 				else console.log(`${username} registered.`);
 			});
 	
-			functions.render(req, res, 
+			render.render(req, res, 
 				{page: "login", title: '로그인',
 			error_message: '등록되었습니다! 다시 로그인해 주세요.'});
 		});
