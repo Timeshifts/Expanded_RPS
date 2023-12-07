@@ -1,8 +1,5 @@
 # Expanded RPS(Rock, Paper, Scissors)
 
-## 미완성
-현재 이 리포지토리는 미 완성 상태입니다.
-
 ## 소개
 일반적인 3개의 손패보다 더 많은 모양을 사용하는 가위바위보를 웹 게임으로 즐겨보세요!<br>
 현재 5개의 손패를 사용하는 가위바위보도마뱀스팍(Rock, Paper, Scissors, Lizard, Spock, 약자 RPSLS)만 지원합니다.
