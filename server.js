@@ -20,7 +20,7 @@ dotenv.config();
 
 const app = express();
 const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 20086;
+const port = Number.parseInt(process.env.PORT) || 20086;
 const server = http.createServer(app);
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -285,6 +285,7 @@ gameNamespace.on('connection', (socket) => {
     const right = rooms[room_index].users[1];
 
     if (rooms[room_index].state != GAME_STAGE.CHOICE_HAND) return;
+    if (rpssl_rules[hand] === undefined) return;
     rooms[room_index].hands[user_index] = hand;
     if (!rooms[room_index].hands.includes(undefined)) {
       let result = rpsslResult(rooms[room_index].hands);
